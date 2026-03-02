@@ -9,10 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sidebar Toggle Logic
   toggleBtn.addEventListener('click', () => {
     sidebar.classList.remove('collapsed');
+    toggleBtn.classList.remove('visible');
   });
 
   closeBtn.addEventListener('click', () => {
     sidebar.classList.add('collapsed');
+    toggleBtn.classList.add('visible');
   });
 
   // Live Data Endpoints
