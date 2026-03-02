@@ -101,9 +101,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 45px;
-  height: 45px;
-  padding: 0;
+  padding: 0.6rem 1.2rem;
+  /* Allow text to fit naturally */
   border-radius: 12px;
   opacity: 0;
   /* Hidden by default when sidebar is open */
@@ -157,9 +156,13 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.2rem 2rem;
-  padding-left: 4.5rem;
-  /* Reserve space for the floating toggle button */
   flex-shrink: 0;
+  transition: padding-left 0.4s ease;
+}
+
+/* Add padding specifically when sidebar is collapsed to make room for toggle button */
+.sidebar.collapsed~.dashboard .dashboard-header {
+  padding-left: 11rem;
 }
 
 .dashboard-header h1 {

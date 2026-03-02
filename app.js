@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Live Data Endpoints
   const VERSE_API = 'https://labs.bible.org/api/?passage=votd&type=json';
   const WEATHER_API = 'https://api.open-meteo.com/v1/forecast?latitude=37.8716&longitude=-122.2727&current_weather=true&daily=precipitation_sum&timezone=America%2FLos_Angeles';
-  // Initialize Sortable for the Library ONLY (to allow dragging OUT of the library)
+  // Initialize Sortable for the Library
   new Sortable(libraryEl, {
     group: {
       name: 'shared',
@@ -29,32 +29,41 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     animation: 150,
     sort: false, // Prevent original library from being reordered
+    handle: '.drag-handle'
+  });
+
+  // Make the dashboard grid able to receive drops
+  new Sortable(gridEl, {
+    group: 'shared',
+    animation: 150,
     handle: '.drag-handle',
-    onEnd: function (evt) {
-      // If dropped onto the dashboard grid
-      if (evt.to === gridEl) {
-        const itemEl = evt.item;
+    ghostClass: 'sortable-ghost',
+    sort: false, // Disable re-ordering since widgets are absolute/floating
+    onAdd: function (evt) {
+      const itemEl = evt.item;
+      setupWidget(itemEl);
 
-        // Convert to absolute positioning at cursor drop location
+      let dropX = 50;
+      let dropY = 50;
+
+      if (evt.originalEvent) {
         const rect = gridEl.getBoundingClientRect();
-        let dropX = evt.originalEvent.clientX - rect.left - 20; // offset by 20px
-        let dropY = evt.originalEvent.clientY - rect.top - 20;
-
-        // Keep within bounds
-        dropX = Math.max(0, dropX);
-        dropY = Math.max(0, dropY);
-
-        itemEl.style.left = `${dropX}px`;
-        itemEl.style.top = `${dropY}px`;
-        itemEl.style.position = 'absolute';
-        itemEl.style.zIndex = getHighestZIndex() + 1;
-
-        setupWidget(itemEl);
-        makeDraggable(itemEl);
-        makeResizable(itemEl); // Ensure saveLayout is called on resize
-        updateGridState();
-        saveLayout();
+        dropX = evt.originalEvent.clientX - rect.left - parseInt(window.getComputedStyle(itemEl).width) / 2;
+        dropY = evt.originalEvent.clientY - rect.top - 20; // 20px from top handle
       }
+
+      dropX = Math.max(0, dropX);
+      dropY = Math.max(0, dropY);
+
+      itemEl.style.position = 'absolute';
+      itemEl.style.left = `${dropX}px`;
+      itemEl.style.top = `${dropY}px`;
+      itemEl.style.zIndex = getHighestZIndex() + 1;
+
+      makeDraggable(itemEl);
+      makeResizable(itemEl);
+      updateGridState();
+      saveLayout();
     }
   });
 
