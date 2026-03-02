@@ -193,44 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     } else if (type === 'weather') {
       fetchWeather(widget);
-    } else if (type === 'trends') {
-      setupTrendsWidget(widget);
     }
-  }
-
-  function setupTrendsWidget(widget) {
-    const container = widget.querySelector('.trends-container');
-    if (!container || container.dataset.loaded === 'true') return;
-
-    // Only load if it's on the dashboard (not in the library template)
-    if (widget.closest('#widget-library')) return;
-
-    container.innerHTML = ''; // clear placeholder
-
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = 'https://ssl.gstatic.com/trends_nrtr/3796_RC01/embed_loader.js';
-
-    // Extend timeout to 12 seconds
-    let loaded = false;
-    const timeout = setTimeout(() => {
-      if (!loaded) container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Trends failed to load. Please try refreshing.</div>';
-    }, 12000);
-
-    script.onload = () => {
-      loaded = true;
-      clearTimeout(timeout);
-      trends.embed.renderExploreWidgetTo(container, "TIMESERIES", { "comparisonItem": [{ "keyword": "AI", "geo": "US", "time": "today 12-m" }], "category": 0, "property": "" }, { "exploreQuery": "q=AI&geo=US&date=today 12-m", "guestPath": "https://trends.google.com:443/trends/embed/" });
-    };
-
-    script.onerror = () => {
-      loaded = true;
-      clearTimeout(timeout);
-      container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Could not connect to Google Trends API.</div>';
-    };
-
-    container.appendChild(script);
-    container.dataset.loaded = 'true';
   }
 
   async function fetchVerse(widget) {

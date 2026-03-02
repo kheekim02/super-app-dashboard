@@ -94,25 +94,18 @@ body {
 }
 
 .sidebar-toggle {
-  position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
-  z-index: 100;
-  display: flex;
+  display: none;
+  /* Hidden by default when sidebar is open */
   align-items: center;
   justify-content: center;
   padding: 0.6rem 1.2rem;
-  /* Allow text to fit naturally */
   border-radius: 12px;
-  opacity: 0;
-  /* Hidden by default when sidebar is open */
-  pointer-events: none;
+  white-space: nowrap;
   transition: opacity 0.3s ease;
 }
 
 .sidebar-toggle.visible {
-  opacity: 1;
-  pointer-events: auto;
+  display: flex;
 }
 
 .sidebar h2 {
@@ -153,23 +146,19 @@ body {
 
 .dashboard-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding: 1.2rem 2rem;
   flex-shrink: 0;
-  transition: padding-left 0.4s ease;
-}
-
-/* Add padding specifically when sidebar is collapsed to make room for toggle button */
-.sidebar.collapsed~.dashboard .dashboard-header {
-  padding-left: 11rem;
 }
 
 .dashboard-header h1 {
+  flex-grow: 1;
   font-size: 1.8rem;
   font-weight: 700;
   background: linear-gradient(90deg, #ffffff, #a5b4fc);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
