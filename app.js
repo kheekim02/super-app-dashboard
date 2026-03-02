@@ -18,11 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Live Data Endpoints
   const VERSE_API = 'https://labs.bible.org/api/?passage=votd&type=json';
   const WEATHER_API = 'https://api.open-meteo.com/v1/forecast?latitude=37.8716&longitude=-122.2727&current_weather=true&daily=precipitation_sum&timezone=America%2FLos_Angeles';
-  // Free RSS to JSON proxy fetching live Google News Headines (US)
-  const NEWS_API = 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%3Fhl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen';
-
-
-
   // Initialize Sortable for the Library (Clone items)
   new Sortable(libraryEl, {
     group: {
@@ -95,7 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
         textarea.addEventListener('input', saveLayout); // Save content on type
       }
     } else if (type === 'news') {
-      fetchNews(widget);
+      fetchNews(widget, 'general');
+      const cats = widget.querySelectorAll('.news-cat-btn');
+      cats.forEach(btn => {
+        btn.onclick = () => fetchNews(widget, btn.getAttribute('data-cat'));
+      });
     } else if (type === 'weather') {
       fetchWeather(widget);
     } else if (type === 'trends') {
@@ -191,13 +190,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function fetchNews(widget) {
+  async function fetchNews(widget, category = 'general') {
     const list = widget.querySelector('#news-list');
     if (!list) return;
+
+    // Set active button
+    const btns = widget.querySelectorAll('.news-cat-btn');
+    if (btns.length > 0) {
+      btns.forEach(b => b.classList.remove('active'));
+      const activeBtn = widget.querySelector(`.news-cat-btn[data-cat="${category}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    list.innerHTML = '<li class="news-item" style="color: var(--text-secondary); font-size: 0.85rem;">⏳ Loading live news...</li>';
+
+    let rssUrl = 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml';
+    if (category === 'tech') rssUrl = 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml';
+    if (category === 'business') rssUrl = 'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml';
+
+    const API = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
     try {
-      const res = await fetch(NEWS_API);
+      const res = await fetch(API);
       const data = await res.json();
-      const articles = data.items.slice(0, 4); // Get top 4 items from RSS JSON
+      const articles = data.items.slice(0, 3); // Get top 3 items
 
       list.innerHTML = ''; // Clear loading state
       articles.forEach(article => {
@@ -205,14 +221,13 @@ document.addEventListener('DOMContentLoaded', () => {
         li.className = 'news-item';
         li.style = 'margin-bottom: 12px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;';
 
-        let title = article.title || "";
-        // Clean out '- Google News' or source suffix commonly appended by Google News RSS
-        title = title.split(' - ')[0];
-
+        const title = article.title;
         const url = article.link;
+        const desc = article.description ? article.description.replace(/<[^>]*>?/gm, '').trim() : "";
 
         li.innerHTML = `
             <a href="${url}" target="_blank" class="news-title" style="font-weight: 500; font-size: 0.95rem; color: #a5b4fc; text-decoration: none; display: block; margin-bottom: 4px;">${title}</a>
+            ${desc ? `<div class="news-summary" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; margin-top: 4px;">${desc}</div>` : ''}
          `;
         list.appendChild(li);
       });
@@ -320,7 +335,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const libWeather = libraryEl.querySelector('.widget-card[data-type="weather"]');
   if (libWeather) fetchWeather(libWeather);
   const libNews = libraryEl.querySelector('.widget-card[data-type="news"]');
-  if (libNews) fetchNews(libNews);
+  if (libNews) {
+    fetchNews(libNews, 'general');
+    const cats = libNews.querySelectorAll('.news-cat-btn');
+    cats.forEach(btn => {
+      btn.onclick = () => fetchNews(libNews, btn.getAttribute('data-cat'));
+    });
+  }
   const libVerse = libraryEl.querySelector('.widget-card[data-type="verse"]');
   if (libVerse) fetchVerse(libVerse);
 });

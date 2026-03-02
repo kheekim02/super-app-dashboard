@@ -71,7 +71,12 @@
           <div class="drag-handle">≡</div>
           <div class="widget-content">
             <h3>Top Headlines</h3>
-            <ul id="news-list" class="news-list" style="list-style: none; padding: 0; margin-top: 10px;">
+            <div class="news-categories" style="display: flex; gap: 5px; margin-bottom: 10px;">
+              <button class="news-cat-btn active" data-cat="general">General</button>
+              <button class="news-cat-btn" data-cat="tech">Tech</button>
+              <button class="news-cat-btn" data-cat="business">Business</button>
+            </div>
+            <ul id="news-list" class="news-list" style="list-style: none; padding: 0;">
               <li class="news-item" style="color: var(--text-secondary); font-size: 0.85rem;">⏳ Loading live news...
               </li>
             </ul>
@@ -103,24 +108,6 @@
             <div class="stats-display">
               <div class="stat-row"><span>Tasks Completed</span> <strong>12</strong></div>
               <div class="stat-row"><span>Focus Hours</span> <strong>4.5</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- NEW: Google Trends Widget -->
-        <div class="widget-card template" data-type="trends">
-          <div class="drag-handle">≡</div>
-          <div class="widget-content">
-            <h3 style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 1.2rem;">📈</span> US Trending Searches
-            </h3>
-            <div class="trends-container"
-              style="background: white; border-radius: 8px; overflow: hidden; height: 260px; margin-top: 10px;">
-              <!-- Script injected dynamically by JS to avoid execution in library -->
-              <div class="trends-placeholder"
-                style="color: black; text-align: center; padding-top: 100px; font-size: 0.9rem;">
-                Loading Trends...
-              </div>
             </div>
           </div>
         </div>
