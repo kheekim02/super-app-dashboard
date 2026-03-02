@@ -34,12 +34,13 @@
           <div class="drag-handle">≡</div>
           <div class="widget-content">
             <h3>Weather Forecast</h3>
-            <div class="weather-display">☁️ 16°C</div>
-            <p class="weather-subtitle" style="text-align: center; color: var(--text-secondary); font-size: 0.8rem;">
-              Cloudy in Berkeley, CA</p>
-            <div class="rain-warning"
-              style="margin-top: 10px; background: rgba(255, 165, 0, 0.2); border-radius: 4px; padding: 5px; color: orange; font-size: 0.85rem; text-align: center; border: 1px solid rgba(255, 165, 0, 0.4);">
-              ⚠️ Rain expected this weekend
+            <div id="weather-display" class="weather-display">⏳ Loading...</div>
+            <p id="weather-subtitle" class="weather-subtitle"
+              style="text-align: center; color: var(--text-secondary); font-size: 0.8rem;">
+              Fetching location data...</p>
+            <div id="rain-warning" class="rain-warning"
+              style="display: none; margin-top: 10px; background: rgba(255, 165, 0, 0.2); border-radius: 4px; padding: 5px; color: orange; font-size: 0.85rem; text-align: center; border: 1px solid rgba(255, 165, 0, 0.4);">
+              ⚠️ Rain expected soon
             </div>
           </div>
         </div>
@@ -61,23 +62,8 @@
           <div class="drag-handle">≡</div>
           <div class="widget-content">
             <h3>Top Headlines</h3>
-            <ul class="news-list" style="list-style: none; padding: 0; margin-top: 10px;">
-              <li class="news-item"
-                style="margin-bottom: 10px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px;">
-                <a href="https://www.google.com/search?q=Tech+Stocks+Surge" target="_blank" class="news-title"
-                  style="cursor: pointer; font-weight: 500; font-size: 0.95rem; color: #a5b4fc; text-decoration: none; display: block;">Tech
-                  Stocks Surge</a>
-                <div class="news-summary"
-                  style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">Major tech
-                  indices hit record highs following strong quarterly AI earnings reports.</div>
-              </li>
-              <li class="news-item" style="margin-bottom: 10px; padding-bottom: 8px;">
-                <a href="https://www.google.com/search?q=New+Quantum+Computer" target="_blank" class="news-title"
-                  style="cursor: pointer; font-weight: 500; font-size: 0.95rem; color: #a5b4fc; text-decoration: none; display: block;">New
-                  Quantum Computer</a>
-                <div class="news-summary"
-                  style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">Scientists
-                  unveil a 1000-qubit processor, bringing us closer to solving unbreakable cryptography.</div>
+            <ul id="news-list" class="news-list" style="list-style: none; padding: 0; margin-top: 10px;">
+              <li class="news-item" style="color: var(--text-secondary); font-size: 0.85rem;">⏳ Loading live news...
               </li>
             </ul>
           </div>
@@ -91,11 +77,13 @@
           </div>
         </div>
 
-        <div class="widget-card template" data-type="quote">
+        <div class="widget-card template" data-type="verse">
           <div class="drag-handle">≡</div>
           <div class="widget-content">
-            <h3>Daily Inspiration</h3>
-            <div class="quote-display">"Stay curious."</div>
+            <h3>Verse of the Day</h3>
+            <div id="verse-display" class="quote-display">⏳ Fetching verse...</div>
+            <div id="verse-reference"
+              style="text-align: right; font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;"></div>
           </div>
         </div>
 
