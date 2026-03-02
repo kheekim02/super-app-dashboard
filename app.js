@@ -87,6 +87,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (textarea) {
         textarea.addEventListener('input', saveLayout); // Save content on type
       }
+    } else if (type === 'news') {
+      const newsItems = widget.querySelectorAll('.news-item');
+      newsItems.forEach(item => {
+        const title = item.querySelector('.news-title');
+        const summary = item.querySelector('.news-summary');
+        if (title && summary) {
+          // Replace existing onclick to avoid duplicates if reset
+          title.onclick = () => {
+            summary.style.display = summary.style.display === 'none' ? 'block' : 'none';
+          };
+        }
+      });
     }
   }
 
