@@ -89,8 +89,8 @@ body {
 .sidebar.collapsed {
   transform: translateX(-120%);
   opacity: 0;
-  position: absolute;
-  /* Take it out of flow so dashboard expands */
+  margin-left: -340px;
+  /* Pull the dashboard over smoothly instead of absolute positioning */
   pointer-events: none;
 }
 
@@ -424,6 +424,8 @@ body {
 
   .sidebar.collapsed {
     transform: translateY(-120%);
+    margin-left: 0;
+    margin-top: -250px;
   }
 
   body {

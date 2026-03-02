@@ -192,6 +192,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (checkAuthStatus(widget)) {
         fetchCalendarEvents(widget);
       }
+    } else {
+      // Poll for gapiInited since scripts load async
+      const interval = setInterval(() => {
+        if (gapiInited) {
+          clearInterval(interval);
+          if (checkAuthStatus(widget)) {
+            fetchCalendarEvents(widget);
+          }
+        }
+      }, 500);
     }
   }
 
@@ -208,8 +218,22 @@ document.addEventListener('DOMContentLoaded', () => {
     script.type = 'text/javascript';
     script.src = 'https://ssl.gstatic.com/trends_nrtr/3796_RC01/embed_loader.js';
 
+    // Add a fallback timeout incase the script fails to load
+    let loaded = false;
+    const timeout = setTimeout(() => {
+      if (!loaded) container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Trends failed to load in time.</div>';
+    }, 5000);
+
     script.onload = () => {
+      loaded = true;
+      clearTimeout(timeout);
       trends.embed.renderExploreWidgetTo(container, "TIMESERIES", { "comparisonItem": [{ "keyword": "AI", "geo": "US", "time": "today 12-m" }], "category": 0, "property": "" }, { "exploreQuery": "q=AI&geo=US&date=today 12-m", "guestPath": "https://trends.google.com:443/trends/embed/" });
+    };
+
+    script.onerror = () => {
+      loaded = true;
+      clearTimeout(timeout);
+      container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Could not connect to Google Trends API.</div>';
     };
 
     container.appendChild(script);
