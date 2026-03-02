@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super App Dashboard</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- SortableJS -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="background-animation"></div>
+
+  <div class="app-container">
+    <!-- Sidebar: Widget Library -->
+    <aside class="sidebar glass-panel">
+      <h2>Widget Library</h2>
+      <p class="subtitle">Drag components to your dashboard</p>
+      <div id="widget-library" class="widget-list">
+        <!-- Template Widgets -->
+        <div class="widget-card template" data-type="clock">
+          <div class="drag-handle">≡</div>
+          <div class="widget-content">
+            <h3>Digital Clock</h3>
+            <div class="clock-display">12:00 PM</div>
+          </div>
+        </div>
+
+        <div class="widget-card template" data-type="weather">
+          <div class="drag-handle">≡</div>
+          <div class="widget-content">
+            <h3>Weather Forecast</h3>
+            <div class="weather-display">☀️ 72°F</div>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 0.8rem;">Sunny in San Francisco</p>
+          </div>
+        </div>
+
+        <div class="widget-card template" data-type="notes">
+          <div class="drag-handle">≡</div>
+          <div class="widget-content">
+            <h3>Quick Notes</h3>
+            <textarea placeholder="Type your thoughts here..." class="glass-textarea"></textarea>
+          </div>
+        </div>
+
+        <div class="widget-card template" data-type="quote">
+          <div class="drag-handle">≡</div>
+          <div class="widget-content">
+            <h3>Daily Inspiration</h3>
+            <div class="quote-display">"Stay curious."</div>
+          </div>
+        </div>
+
+        <div class="widget-card template" data-type="stats">
+          <div class="drag-handle">≡</div>
+          <div class="widget-content">
+            <h3>Productivity Stats</h3>
+            <div class="stats-display">
+              <div class="stat-row"><span>Tasks Completed</span> <strong>12</strong></div>
+              <div class="stat-row"><span>Focus Hours</span> <strong>4.5</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard">
+      <header class="dashboard-header glass-panel">
+        <h1>My Personal Space</h1>
+        <button id="reset-btn" class="glass-btn">Reset Layout</button>
+      </header>
+
+      <div id="dashboard-grid" class="dashboard-grid glass-panel-inner">
+        <!-- Dropped widgets will appear here -->
+        <div class="empty-state-msg">
+          <p>Your dashboard is empty.</p>
+          <p>Drag widgets from the library here to build your super app!</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
