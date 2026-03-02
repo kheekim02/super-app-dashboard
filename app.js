@@ -18,76 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Live Data Endpoints
   const VERSE_API = 'https://labs.bible.org/api/?passage=votd&type=json';
   const WEATHER_API = 'https://api.open-meteo.com/v1/forecast?latitude=37.8716&longitude=-122.2727&current_weather=true&daily=precipitation_sum&timezone=America%2FLos_Angeles';
-  const NEWS_API = 'https://saurav.tech/NewsAPI/top-headlines/category/technology/us.json';
+  // Free RSS to JSON proxy fetching live Google News Headines (US)
+  const NEWS_API = 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%3Fhl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen';
 
-  // Google API Configuration
-  const CLIENT_ID = '1058518352466-6js0odii9p9lcj3g8r3omi5p0liv9j2r.apps.googleusercontent.com';
-  const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
-  const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events';
 
-  let tokenClient;
-  let gapiInited = false;
-  let gisInited = false;
-  let activeCalendarWidget = null;
-
-  // Initialize Google APIs
-  function gapiLoaded() {
-    gapi.load('client', initializeGapiClient);
-  }
-
-  async function initializeGapiClient() {
-    await gapi.client.init({
-      discoveryDocs: [DISCOVERY_DOC],
-    });
-    gapiInited = true;
-    checkAuthStatus();
-  }
-
-  function gisLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: '', // defined later in handleAuthClick
-    });
-    gisInited = true;
-  }
-
-  // Bind the global callbacks to window so the script tags can find them
-  window.gapiLoaded = gapiLoaded;
-  window.gisLoaded = gisLoaded;
-
-  function handleAuthClick(widget) {
-    activeCalendarWidget = widget;
-    tokenClient.callback = async (resp) => {
-      if (resp.error) throw (resp);
-      await fetchCalendarEvents(widget);
-      updateCalendarUI(widget, true);
-    };
-
-    if (gapi.client.getToken() === null) {
-      tokenClient.requestAccessToken({ prompt: 'consent' });
-    } else {
-      tokenClient.requestAccessToken({ prompt: '' });
-    }
-  }
-
-  function checkAuthStatus(widget = null) {
-    const isAuth = gapi.client.getToken() !== null;
-    if (widget) updateCalendarUI(widget, isAuth);
-    return isAuth;
-  }
-
-  function updateCalendarUI(widget, isAuthenticated) {
-    const authState = widget.querySelector('.calendar-auth-state');
-    const eventsState = widget.querySelector('.calendar-events-state');
-    if (isAuthenticated) {
-      if (authState) authState.style.display = 'none';
-      if (eventsState) eventsState.style.display = 'block';
-    } else {
-      if (authState) authState.style.display = 'block';
-      if (eventsState) eventsState.style.display = 'none';
-    }
-  }
 
   // Initialize Sortable for the Library (Clone items)
   new Sortable(libraryEl, {
@@ -164,44 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
       fetchNews(widget);
     } else if (type === 'weather') {
       fetchWeather(widget);
-    } else if (type === 'calendar') {
-      setupCalendarWidget(widget);
     } else if (type === 'trends') {
       setupTrendsWidget(widget);
-    }
-  }
-
-  function setupCalendarWidget(widget) {
-    const signInBtn = widget.querySelector('.g-sign-in');
-    if (signInBtn) {
-      signInBtn.onclick = () => handleAuthClick(widget);
-    }
-
-    const addBtn = widget.querySelector('.add-event-btn');
-    const input = widget.querySelector('.new-event-input');
-
-    if (addBtn && input) {
-      addBtn.onclick = () => addCalendarEvent(widget, input.value);
-      input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') addCalendarEvent(widget, input.value);
-      });
-    }
-
-    // Check auth status if APIs are loaded
-    if (gapiInited) {
-      if (checkAuthStatus(widget)) {
-        fetchCalendarEvents(widget);
-      }
-    } else {
-      // Poll for gapiInited since scripts load async
-      const interval = setInterval(() => {
-        if (gapiInited) {
-          clearInterval(interval);
-          if (checkAuthStatus(widget)) {
-            fetchCalendarEvents(widget);
-          }
-        }
-      }, 500);
     }
   }
 
@@ -218,11 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
     script.type = 'text/javascript';
     script.src = 'https://ssl.gstatic.com/trends_nrtr/3796_RC01/embed_loader.js';
 
-    // Add a fallback timeout incase the script fails to load
+    // Extend timeout to 12 seconds
     let loaded = false;
     const timeout = setTimeout(() => {
-      if (!loaded) container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Trends failed to load in time.</div>';
-    }, 5000);
+      if (!loaded) container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Trends failed to load. Please try refreshing.</div>';
+    }, 12000);
 
     script.onload = () => {
       loaded = true;
@@ -299,21 +197,22 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch(NEWS_API);
       const data = await res.json();
-      const articles = data.articles.slice(0, 3); // Get top 3
+      const articles = data.items.slice(0, 4); // Get top 4 items from RSS JSON
 
       list.innerHTML = ''; // Clear loading state
       articles.forEach(article => {
         const li = document.createElement('li');
         li.className = 'news-item';
-        li.style = 'margin-bottom: 10px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px;';
+        li.style = 'margin-bottom: 12px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;';
 
-        const title = article.title.split(' - ')[0]; // Clean up title
-        const url = `https://www.google.com/search?q=${encodeURIComponent(title)}`;
-        const desc = article.description ? article.description.substring(0, 80) + '...' : '';
+        let title = article.title || "";
+        // Clean out '- Google News' or source suffix commonly appended by Google News RSS
+        title = title.split(' - ')[0];
+
+        const url = article.link;
 
         li.innerHTML = `
             <a href="${url}" target="_blank" class="news-title" style="font-weight: 500; font-size: 0.95rem; color: #a5b4fc; text-decoration: none; display: block; margin-bottom: 4px;">${title}</a>
-            <div class="news-summary" style="font-size: 0.85rem; color: var(--text-secondary);">${desc}</div>
          `;
         list.appendChild(li);
       });
@@ -322,81 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function fetchCalendarEvents(widget) {
-    const list = widget.querySelector('.calendar-list');
-    if (!list) return;
 
-    try {
-      const response = await gapi.client.calendar.events.list({
-        'calendarId': 'primary',
-        'timeMin': (new Date()).toISOString(),
-        'showDeleted': false,
-        'singleEvents': true,
-        'maxResults': 5,
-        'orderBy': 'startTime',
-      });
-
-      const events = response.result.items;
-      list.innerHTML = '';
-
-      if (!events || events.length === 0) {
-        list.innerHTML = '<li style="font-size: 0.85rem; color: var(--text-secondary);">No upcoming events today.</li>';
-        return;
-      }
-
-      events.forEach(event => {
-        const start = event.start.dateTime || event.start.date;
-        const timeString = new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        const li = document.createElement('li');
-        li.style = 'margin-bottom: 8px; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 8px;';
-        li.innerHTML = `
-          <span style="color: #a5b4fc; min-width: 65px; font-weight: 500;">${timeString}</span>
-          <span style="color: white;">${event.summary}</span>
-        `;
-        list.appendChild(li);
-      });
-    } catch (err) {
-      console.error(err);
-      list.innerHTML = '<li style="font-size: 0.85rem; color: #ff6b6b;">Error fetching events.</li>';
-    }
-  }
-
-  async function addCalendarEvent(widget, title) {
-    if (!title.trim()) return;
-    const input = widget.querySelector('.new-event-input');
-    input.value = ''; // clear input
-    input.placeholder = 'Adding...';
-
-    // Simple 1-hour event starting now
-    const startDate = new Date();
-    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
-
-    const event = {
-      'summary': title,
-      'start': {
-        'dateTime': startDate.toISOString(),
-        'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
-      },
-      'end': {
-        'dateTime': endDate.toISOString(),
-        'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
-      }
-    };
-
-    try {
-      await gapi.client.calendar.events.insert({
-        'calendarId': 'primary',
-        'resource': event,
-      });
-      input.placeholder = 'New event title...';
-      fetchCalendarEvents(widget); // Refresh list
-    } catch (err) {
-      console.error(err);
-      input.placeholder = 'Failed to add.';
-      setTimeout(() => input.placeholder = 'New event title...', 2000);
-    }
-  }
 
   function updateClock(element) {
     if (!element) return;

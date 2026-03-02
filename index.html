@@ -9,9 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- SortableJS -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-  <!-- Google API Client -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/api.js" async defer></script>
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -106,38 +103,6 @@
             <div class="stats-display">
               <div class="stat-row"><span>Tasks Completed</span> <strong>12</strong></div>
               <div class="stat-row"><span>Focus Hours</span> <strong>4.5</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- NEW: Google Calendar Widget -->
-        <div class="widget-card template google-widget" data-type="calendar">
-          <div class="drag-handle">≡</div>
-          <div class="widget-content">
-            <h3 style="display: flex; align-items: center; gap: 8px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#4285F4">
-                <path
-                  d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5z" />
-              </svg>
-              Google Calendar
-            </h3>
-            <div class="calendar-auth-state">
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px; text-align: center;">Sign
-                in to view today's events.</p>
-              <button class="g-sign-in glass-btn"
-                style="width: 100%; border-color: #4285F4; background: rgba(66, 133, 244, 0.1);">Connect
-                Account</button>
-            </div>
-            <div class="calendar-events-state" style="display: none;">
-              <ul class="calendar-list"
-                style="list-style: none; padding: 0; margin-top: 10px; max-height: 150px; overflow-y: auto;">
-                <!-- Events populated by JS -->
-              </ul>
-              <div style="margin-top: 10px; display: flex; gap: 5px;">
-                <input type="text" class="new-event-input glass-textarea"
-                  style="min-height: 35px; height: 35px; padding: 0.4rem;" placeholder="New event title...">
-                <button class="add-event-btn glass-btn" style="padding: 0.4rem 0.8rem;">+</button>
-              </div>
             </div>
           </div>
         </div>
