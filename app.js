@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Live Data Endpoints
   const VERSE_API = 'https://labs.bible.org/api/?passage=votd&type=json';
   const WEATHER_API = 'https://api.open-meteo.com/v1/forecast?latitude=37.8716&longitude=-122.2727&current_weather=true&daily=precipitation_sum&timezone=America%2FLos_Angeles';
-  // Initialize Sortable for the Library (Clone items)
+  // Initialize Sortable for the Library ONLY (to allow dragging OUT of the library)
   new Sortable(libraryEl, {
     group: {
       name: 'shared',
@@ -30,27 +30,112 @@ document.addEventListener('DOMContentLoaded', () => {
     animation: 150,
     sort: false, // Prevent original library from being reordered
     handle: '.drag-handle',
-  });
+    onEnd: function (evt) {
+      // If dropped onto the dashboard grid
+      if (evt.to === gridEl) {
+        const itemEl = evt.item;
 
-  // Initialize Sortable for the Dashboard Grid
-  new Sortable(gridEl, {
-    group: 'shared',
-    animation: 150,
-    handle: '.drag-handle',
-    ghostClass: 'sortable-ghost',
-    onAdd: function (evt) {
-      const itemEl = evt.item;
-      setupWidget(itemEl);
-      updateGridState();
-      saveLayout();
-    },
-    onSort: function (evt) {
-      saveLayout();
-    },
-    onRemove: function (evt) {
-      updateGridState();
+        // Convert to absolute positioning at cursor drop location
+        const rect = gridEl.getBoundingClientRect();
+        let dropX = evt.originalEvent.clientX - rect.left - 20; // offset by 20px
+        let dropY = evt.originalEvent.clientY - rect.top - 20;
+
+        // Keep within bounds
+        dropX = Math.max(0, dropX);
+        dropY = Math.max(0, dropY);
+
+        itemEl.style.left = `${dropX}px`;
+        itemEl.style.top = `${dropY}px`;
+        itemEl.style.position = 'absolute';
+        itemEl.style.zIndex = getHighestZIndex() + 1;
+
+        setupWidget(itemEl);
+        makeDraggable(itemEl);
+        makeResizable(itemEl); // Ensure saveLayout is called on resize
+        updateGridState();
+        saveLayout();
+      }
     }
   });
+
+  function getHighestZIndex() {
+    let max = 0;
+    Array.from(gridEl.querySelectorAll('.widget-card')).forEach(w => {
+      const z = parseInt(window.getComputedStyle(w).zIndex, 10);
+      if (!isNaN(z) && z > max) max = z;
+    });
+    return max;
+  }
+
+  // Make widgets free-draggable across the canvas
+  function makeDraggable(widget) {
+    const handle = widget.querySelector('.drag-handle');
+    if (!handle) return;
+
+    let isDragging = false;
+    let startX, startY, initialX, initialY;
+
+    handle.addEventListener('mousedown', (e) => {
+      isDragging = true;
+
+      // Bring to front
+      widget.style.zIndex = getHighestZIndex() + 1;
+
+      const rect = widget.getBoundingClientRect();
+      const parentRect = gridEl.getBoundingClientRect();
+
+      initialX = rect.left - parentRect.left + gridEl.scrollLeft;
+      initialY = rect.top - parentRect.top + gridEl.scrollTop;
+
+      startX = e.clientX;
+      startY = e.clientY;
+
+      // Prevent text selection during drag
+      document.body.style.userSelect = 'none';
+      widget.classList.add('sortable-drag');
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+
+    function onMouseMove(e) {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      let newX = initialX + dx;
+      let newY = initialY + dy;
+
+      // Keep inside bounds roughly
+      const maxX = gridEl.clientWidth - 50;
+      const maxY = gridEl.clientHeight - 50;
+
+      newX = Math.max(0, Math.min(newX, maxX));
+      newY = Math.max(0, Math.min(newY, maxY));
+
+      widget.style.left = `${newX}px`;
+      widget.style.top = `${newY}px`;
+    }
+
+    function onMouseUp(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      document.body.style.userSelect = '';
+      widget.classList.remove('sortable-drag');
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+
+      saveLayout();
+    }
+  }
+
+  function makeResizable(widget) {
+    const observer = new ResizeObserver(() => {
+      saveLayout();
+    });
+    observer.observe(widget);
+  }
 
   function setupWidget(widget) {
     // Remove template class so it styled natively
@@ -273,7 +358,17 @@ document.addEventListener('DOMContentLoaded', () => {
         content = widget.querySelector('.glass-textarea').value;
       }
 
-      widgets.push({ type, content });
+      // Save geometry
+      const style = window.getComputedStyle(widget);
+      widgets.push({
+        type,
+        content,
+        x: style.left,
+        y: style.top,
+        w: style.width,
+        h: style.height,
+        z: style.zIndex
+      });
     });
 
     try {
@@ -302,10 +397,20 @@ document.addEventListener('DOMContentLoaded', () => {
             gridEl.appendChild(clone);
             setupWidget(clone);
 
-            // Restore specific content if applicable
             if (data.type === 'notes' && data.content) {
               clone.querySelector('.glass-textarea').value = data.content;
             }
+
+            // Restore geometry
+            clone.style.position = 'absolute';
+            clone.style.left = data.x || '10px';
+            clone.style.top = data.y || '10px';
+            if (data.w) clone.style.width = data.w;
+            if (data.h) clone.style.height = data.h;
+            if (data.z) clone.style.zIndex = data.z;
+
+            makeDraggable(clone);
+            makeResizable(clone);
           }
         });
       }

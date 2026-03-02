@@ -157,6 +157,8 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.2rem 2rem;
+  padding-left: 4.5rem;
+  /* Reserve space for the floating toggle button */
   flex-shrink: 0;
 }
 
@@ -185,17 +187,13 @@ body {
   transform: translateY(-2px);
 }
 
-/* Grid Area */
+/* Free-Floating Canvas Area */
 .dashboard-grid {
   flex-grow: 1;
   padding: 2rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  grid-auto-rows: min-content;
-  gap: 1.5rem;
-  align-items: start;
-  overflow-y: auto;
   position: relative;
+  overflow: hidden;
+  /* Contain floating widgets */
 }
 
 .dashboard-grid::-webkit-scrollbar {
@@ -231,7 +229,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   padding: 1.5rem;
-  position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
@@ -242,7 +239,14 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* Floating behavior for widgets on the dashboard */
 .dashboard-grid .widget-card {
+  position: absolute;
+  width: 300px;
+  /* Default width */
+  min-height: 150px;
+  resize: both;
+  overflow: hidden;
   animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
